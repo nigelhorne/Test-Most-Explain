@@ -39,6 +39,10 @@ my $TB = Test::Builder->new;
 sub explain {
     my ($got, $exp) = @_;
 
+    # Normalize undef for scalar handling
+    $got = '' unless defined $got;
+    $exp = '' unless defined $exp;
+
     # Scalar vs scalar
     if (!ref $got && !ref $exp) {
         my $pos = _first_diff_pos($got, $exp);
