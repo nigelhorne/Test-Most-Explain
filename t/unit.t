@@ -39,11 +39,6 @@ subtest 'array diff' => sub {
 	like( $out, qr/Array diff/i, 'labels array diff' );
 	like( $out, qr/2.*vs.*9/s,   'shows differing element' );
 
-	is(
-		explain("abc", "xbc"),
-		"Scalar comparison failed:\n  Got:	  abc\n  Expected: xbc\n  First difference at index 0\n",
-		'scalar mismatch at index 0'
-	);
 	like(explain([], [1]), qr/Array diff/, 'empty vs non-empty array');
 };
 

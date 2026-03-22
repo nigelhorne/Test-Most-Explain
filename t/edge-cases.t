@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Test::Most;
 
+use utf8;
 use lib 'lib';
 use Test::Most::Explain qw(explain);
 
@@ -147,4 +148,12 @@ subtest 'always returns a string' => sub {
     }
 };
 
-done_testing;
+my $deep = [];
+$deep = [$deep] for 1..100;
+ok(explain($deep, $deep), 'very deep nesting handled');
+
+my $a = { x => [ { y => 1 } ] };
+my $b = { x => [ { y => 2 } ] };
+like(explain($a, $b), qr/diff/i, 'mixed nested structures');
+
+done_testing();
