@@ -40,17 +40,14 @@ subtest 'empty structures' => sub {
 # 4. mismatched types
 #------------------------------------------------------------
 subtest 'mismatched types' => sub {
+	my $s_a = explain(1, [1]);
+	ok(defined $s_a || !defined $s_a, 'scalar vs array does not crash');
 
-    my $s_a = explain(1, [1]);
-ok(defined $s_a || !defined $s_a, 'scalar vs array does not crash');
-    
+	my $h_s = explain({a=>1}, 1);
+	ok(defined $h_s || !defined $h_s, 'hash vs scalar does not crash');
 
-    my $h_s = explain({a=>1}, 1);
-ok(defined $h_s || !defined $h_s, 'hash vs scalar does not crash');
-
-    my $a_h = explain([1], {a=>1});
-ok(defined $a_h || !defined $a_h, 'array vs hash does not crash');
-    
+	my $a_h = explain([1], {a=>1});
+	ok(defined $a_h || !defined $a_h, 'array vs hash does not crash');
 };
 
 #------------------------------------------------------------

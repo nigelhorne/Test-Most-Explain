@@ -31,31 +31,7 @@ Version 0.01
 Test::Most::Explain provides clearer, more actionable diagnostics for
 failing tests. It works in two complementary ways:
 
-## 1. The explain() function
-
-The `explain()` routine compares two values and returns a human-readable
-description of how they differ. It handles:
-
-- simple scalars
-- arrays
-- hashes
-- blessed references
-- mixed or unexpected structures
-
-For scalars, `explain()` reports the first differing character and shows
-context around the mismatch. For deep structures, it emits compact dumps
-of each side and highlights structural issues such as:
-
-- differing array lengths
-- missing or extra hash keys
-- blessed vs unblessed mismatches
-- Unicode differences
-- leading or trailing whitespace
-- case-only differences
-
-`explain()` never dies and always returns a string.
-
-## 2. Automatic enhancement of Test::More diagnostics
+## Automatic enhancement of Test::More diagnostics
 
 When the module is loaded, it installs a small wrapper around
 `Test::Builder::diag`. This wrapper detects Test::More's standard
@@ -121,6 +97,28 @@ Example:
     my $msg = explain("foo", "fob");
     diag $msg;
 
+The `explain()` routine compares two values and returns a human-readable
+description of how they differ. It handles:
+
+- simple scalars
+- arrays
+- hashes
+- blessed references
+- mixed or unexpected structures
+
+For scalars, `explain()` reports the first differing character and shows
+context around the mismatch. For deep structures, it emits compact dumps
+of each side and highlights structural issues such as:
+
+- differing array lengths
+- missing or extra hash keys
+- blessed vs unblessed mismatches
+- Unicode differences
+- leading or trailing whitespace
+- case-only differences
+
+`explain()` never dies and always returns a string.
+
 ### API Specification
 
 #### Input (Params::Validate::Strict compatible)
@@ -135,3 +133,60 @@ Example:
     {
         result => STRING,   # explanation text
     }
+
+# AUTHOR
+
+Nigel Horne, `<njh at nigelhorne.com>`
+
+# BUGS
+
+# SEE ALSO
+
+# REPOSITORY
+
+[https://github.com/nigelhorne/Test-Most-Explain](https://github.com/nigelhorne/Test-Most-Explain)
+
+# SUPPORT
+
+This module is provided as-is without any warranty.
+
+Please report any bugs or feature requests to `bug-test-most-explain at rt.cpan.org`,
+or through the web interface at
+[http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Test-Most-Explain](http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Test-Most-Explain).
+I will be notified, and then you'll
+automatically be notified of progress on your bug as I make changes.
+
+You can find documentation for this module with the perldoc command.
+
+    perldoc Test::Most::Explain
+
+You can also look for information at:
+
+- MetaCPAN
+
+    [https://metacpan.org/dist/Test-Most-Explain](https://metacpan.org/dist/Test-Most-Explain)
+
+- RT: CPAN's request tracker
+
+    [https://rt.cpan.org/NoAuth/Bugs.html?Dist=Test-Most-Explain](https://rt.cpan.org/NoAuth/Bugs.html?Dist=Test-Most-Explain)
+
+- CPAN Testers' Matrix
+
+    [http://matrix.cpantesters.org/?dist=Test-Most-Explain](http://matrix.cpantesters.org/?dist=Test-Most-Explain)
+
+- CPAN Testers Dependencies
+
+    [http://deps.cpantesters.org/?module=Test::Most::Explain](http://deps.cpantesters.org/?module=Test::Most::Explain)
+
+# LICENCE AND COPYRIGHT
+
+Copyright 2026 Nigel Horne.
+
+Usage is subject to licence terms.
+
+The licence terms of this software are as follows:
+
+- Personal single user, single computer use: GPL2
+- All other users (including Commercial, Charity, Educational, Government)
+  must apply in writing for a licence for use from Nigel Horne at the
+  above e-mail.

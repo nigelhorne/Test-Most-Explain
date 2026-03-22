@@ -49,48 +49,7 @@ our $VERSION = '0.01';
 Test::Most::Explain provides clearer, more actionable diagnostics for
 failing tests. It works in two complementary ways:
 
-=head2 1. The explain() function
-
-The C<explain()> routine compares two values and returns a human-readable
-description of how they differ. It handles:
-
-=over 4
-
-=item * simple scalars
-
-=item * arrays
-
-=item * hashes
-
-=item * blessed references
-
-=item * mixed or unexpected structures
-
-=back
-
-For scalars, C<explain()> reports the first differing character and shows
-context around the mismatch. For deep structures, it emits compact dumps
-of each side and highlights structural issues such as:
-
-=over 4
-
-=item * differing array lengths
-
-=item * missing or extra hash keys
-
-=item * blessed vs unblessed mismatches
-
-=item * Unicode differences
-
-=item * leading or trailing whitespace
-
-=item * case-only differences
-
-=back
-
-C<explain()> never dies and always returns a string.
-
-=head2 2. Automatic enhancement of Test::More diagnostics
+=head2 Automatic enhancement of Test::More diagnostics
 
 When the module is loaded, it installs a small wrapper around
 C<Test::Builder::diag>. This wrapper detects Test::More's standard
@@ -179,6 +138,45 @@ Example:
     my $msg = explain("foo", "fob");
     diag $msg;
 
+The C<explain()> routine compares two values and returns a human-readable
+description of how they differ. It handles:
+
+=over 4
+
+=item * simple scalars
+
+=item * arrays
+
+=item * hashes
+
+=item * blessed references
+
+=item * mixed or unexpected structures
+
+=back
+
+For scalars, C<explain()> reports the first differing character and shows
+context around the mismatch. For deep structures, it emits compact dumps
+of each side and highlights structural issues such as:
+
+=over 4
+
+=item * differing array lengths
+
+=item * missing or extra hash keys
+
+=item * blessed vs unblessed mismatches
+
+=item * Unicode differences
+
+=item * leading or trailing whitespace
+
+=item * case-only differences
+
+=back
+
+C<explain()> never dies and always returns a string.
+
 =head3 API Specification
 
 =head4 Input (Params::Validate::Strict compatible)
@@ -242,17 +240,15 @@ sub explain {
 		return "Values are identical\n" if !keys(%$got) && !keys(%$exp);
 		my $out = "Hash diff:\n";
 
-	# detect nested array diffs
-	if (grep { ref($_) eq 'ARRAY' } values %$got,
-								   values %$exp) {
-		$out .= "Array diff:\n";
-	}
+		# detect nested array diffs
+		if (grep { ref($_) eq 'ARRAY' } values %$got, values %$exp) {
+			$out .= "Array diff:\n";
+		}
 
-	$out .= "  Got:	  " . _dump($got) . "\n";
-	$out .= "  Expected: " . _dump($exp) . "\n";
-	return $out;
-}
-	
+		$out .= "  Got:	  " . _dump($got) . "\n";
+		$out .= "  Expected: " . _dump($exp) . "\n";
+		return $out;
+	}
 
 	# Blessed refs
 	if (blessed($got) || blessed($exp)) {
@@ -615,5 +611,75 @@ sub _extract_keys {
 	}
 	return %keys;
 }
+
+1;
+
+=head1 AUTHOR
+
+Nigel Horne, C<< <njh at nigelhorne.com> >>
+
+=head1 BUGS
+
+=head1 SEE ALSO
+
+=head1 REPOSITORY
+
+L<https://github.com/nigelhorne/Test-Most-Explain>
+
+=head1 SUPPORT
+
+This module is provided as-is without any warranty.
+
+Please report any bugs or feature requests to C<bug-test-most-explain at rt.cpan.org>,
+or through the web interface at
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Test-Most-Explain>.
+I will be notified, and then you'll
+automatically be notified of progress on your bug as I make changes.
+
+You can find documentation for this module with the perldoc command.
+
+    perldoc Test::Most::Explain
+
+You can also look for information at:
+
+=over 4
+
+=item * MetaCPAN
+
+L<https://metacpan.org/dist/Test-Most-Explain>
+
+=item * RT: CPAN's request tracker
+
+L<https://rt.cpan.org/NoAuth/Bugs.html?Dist=Test-Most-Explain>
+
+=item * CPAN Testers' Matrix
+
+L<http://matrix.cpantesters.org/?dist=Test-Most-Explain>
+
+=item * CPAN Testers Dependencies
+
+L<http://deps.cpantesters.org/?module=Test::Most::Explain>
+
+=back
+
+=head1 LICENCE AND COPYRIGHT
+
+Copyright 2026 Nigel Horne.
+
+Usage is subject to licence terms.
+
+The licence terms of this software are as follows:
+
+=over 4
+
+=item * Personal single user, single computer use: GPL2
+
+=item * All other users (including Commercial, Charity, Educational, Government)
+  must apply in writing for a licence for use from Nigel Horne at the
+  above e-mail.
+
+=back
+
+=cut
 
 1;
