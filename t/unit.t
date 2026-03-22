@@ -1,24 +1,22 @@
 use strict;
 use warnings;
 use Test::Most;
-use Test::Warnings;     # ensure no unexpected warnings
-use Test::Strict;       # optional: enforce strictness in module
-use Test::Vars;         # optional: detect unused vars
+use Test::Warnings;	 # ensure no unexpected warnings
+use Test::Strict;	   # optional: enforce strictness in module
+use Test::Vars;		 # optional: detect unused vars
 
 use lib 'lib';
 use Test::Most::Explain qw(explain);
-
-
 
 #------------------------------------------------------------
 # Public API: explain()
 #------------------------------------------------------------
 subtest 'explain() basic behaviour' => sub {
 
-    my $got = explain( 1, 1 );
-    ok( defined $got, 'explain() returns a string' );
-    like( $got, qr/1/, 'output mentions the value' );
-    unlike( $got, qr/diff/i, 'no diff when values are equal' );
+	my $got = explain( 1, 1 );
+	ok( defined $got, 'explain() returns a string' );
+	like( $got, qr/1/, 'output mentions the value' );
+	unlike( $got, qr/diff/i, 'no diff when values are equal' );
 };
 
 #------------------------------------------------------------
@@ -26,9 +24,9 @@ subtest 'explain() basic behaviour' => sub {
 #------------------------------------------------------------
 subtest 'scalar diff' => sub {
 
-    my $out = explain( 1, 2 );
-    like( $out, qr/Expected.*2/s, 'shows expected value' );
-    like( $out, qr/Got.*1/s,      'shows got value' );
+	my $out = explain( 1, 2 );
+	like( $out, qr/Expected.*2/s, 'shows expected value' );
+	like( $out, qr/Got.*1/s,	  'shows got value' );
 };
 
 #------------------------------------------------------------
@@ -36,10 +34,17 @@ subtest 'scalar diff' => sub {
 #------------------------------------------------------------
 subtest 'array diff' => sub {
 
-    my $out = explain( [1,2,3], [1,9,3] );
+	my $out = explain( [1,2,3], [1,9,3] );
 
-    like( $out, qr/Array diff/i, 'labels array diff' );
-    like( $out, qr/2.*vs.*9/s,   'shows differing element' );
+	like( $out, qr/Array diff/i, 'labels array diff' );
+	like( $out, qr/2.*vs.*9/s,   'shows differing element' );
+
+	is(
+		explain("abc", "xbc"),
+		"Scalar comparison failed:\n  Got:	  abc\n  Expected: xbc\n  First difference at index 0\n",
+		'scalar mismatch at index 0'
+	);
+	like(explain([], [1]), qr/Array diff/, 'empty vs non-empty array');
 };
 
 #------------------------------------------------------------
@@ -47,29 +52,33 @@ subtest 'array diff' => sub {
 #------------------------------------------------------------
 subtest 'hash diff' => sub {
 
-    my $out = explain( { a => 1, b => 2 }, { a => 1, b => 9 } );
+	my $out = explain( { a => 1, b => 2 }, { a => 1, b => 9 } );
 
-    like( $out, qr/Hash diff/i, 'labels hash diff' );
-    like( $out, qr/b.*2.*9/s,   'shows differing key/value' );
+	like( $out, qr/Hash diff/i, 'labels hash diff' );
+	like( $out, qr/b.*2.*9/s,   'shows differing key/value' );
+	like(explain({}, {a=>1}), qr/Hash diff/, 'empty vs non-empty hash');
 };
 
 #------------------------------------------------------------
 # Blessed references
 #------------------------------------------------------------
 {
-    package Local::Thing;
-    sub new { bless { x => shift }, shift }
+	package Local::Thing;
+	sub new { bless { x => shift }, shift }
 }
 
 subtest 'blessed refs' => sub {
+	my $got = Local::Thing->new(1);
+	my $exp = Local::Thing->new(2);
 
-    my $got = Local::Thing->new(1);
-    my $exp = Local::Thing->new(2);
+	my $out = explain( $got, $exp );
 
-    my $out = explain( $got, $exp );
+	like( $out, qr/bless/i, 'mentions blessed structure' );
+	like( $out, qr/x.*1.*2/s, 'shows differing internal value' );
 
-    like( $out, qr/bless/i, 'mentions blessed structure' );
-    like( $out, qr/x.*1.*2/s, 'shows differing internal value' );
+	my $a = bless {}, 'A';
+	my $b = bless {}, 'B';
+	like(explain($a, $b), qr/Blessed reference diff/, 'different classes');
 };
 
 #------------------------------------------------------------
@@ -77,13 +86,13 @@ subtest 'blessed refs' => sub {
 #------------------------------------------------------------
 subtest 'nested structures' => sub {
 
-    my $got = { a => [1,2], b => { x => 1 } };
-    my $exp = { a => [1,9], b => { x => 2 } };
+	my $got = { a => [1,2], b => { x => 1 } };
+	my $exp = { a => [1,9], b => { x => 2 } };
 
-    my $out = explain( $got, $exp );
+	my $out = explain( $got, $exp );
 
-    like( $out, qr/Array diff/i, 'detects nested array diff' );
-    like( $out, qr/Hash diff/i,  'detects nested hash diff' );
+	like( $out, qr/Array diff/i, 'detects nested array diff' );
+	like( $out, qr/Hash diff/i,  'detects nested hash diff' );
 };
 
 #------------------------------------------------------------
