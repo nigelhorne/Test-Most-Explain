@@ -151,6 +151,51 @@ or requiring changes to existing test code.
 	};
 }
 
+=head1 METHODS
+
+=head2 explain
+
+Purpose:
+  Produce a human-readable explanation of differences between two
+  values. Handles scalars, arrays, hashes, blessed references, and
+  mixed structures.
+
+Arguments:
+  ($got, $exp) - any two Perl values (scalars or references).
+
+Returns:
+  A string describing the difference. Never dies.
+
+Side effects:
+  None. This routine does not emit diagnostics; it only returns a
+  string.
+
+Notes:
+  - Undef is normalized to an empty string for scalar comparison.
+  - Deep structures are dumped using Data::Dumper.
+
+Example:
+
+    my $msg = explain("foo", "fob");
+    diag $msg;
+
+=head3 API Specification
+
+=head4 Input (Params::Validate::Strict compatible)
+
+    {
+        got => { type => SCALAR | ARRAYREF | HASHREF | OBJECT, optional => 1 },
+        exp => { type => SCALAR | ARRAYREF | HASHREF | OBJECT, optional => 1 },
+    }
+
+=head4 Output (Return::Set compatible)
+
+    {
+        result => STRING,   # explanation text
+    }
+
+=cut
+
 sub explain {
 	my ($got, $exp) = @_;
 
@@ -226,6 +271,17 @@ sub explain {
 	return $out;
 }
 
+#-----------------------------------------------------------------------
+# _dump()
+# Entry criteria:
+#   - Receives any Perl value.
+# Exit status:
+#   - Returns a compact Data::Dumper string.
+# Side effects:
+#   - None.
+# Notes:
+#   - Used internally for deep structure formatting.
+#-----------------------------------------------------------------------
 sub _dump {
 	my ($v) = @_;
 	local $Data::Dumper::Terse  = 1;
@@ -236,6 +292,17 @@ sub _dump {
 #------------------------------------------------------------
 # Detect Test::More failure diagnostics
 #------------------------------------------------------------
+#-----------------------------------------------------------------------
+# _looks_like_test_more_failure()
+# Entry criteria:
+#   - Receives raw diag() messages.
+# Exit status:
+#   - Returns boolean.
+# Side effects:
+#   - None.
+# Notes:
+#   - Detects Test::More failure diagnostics.
+#-----------------------------------------------------------------------
 sub _looks_like_test_more_failure {
 	my @msg = @_;
 
@@ -254,7 +321,17 @@ sub _looks_like_test_more_failure {
 
 #------------------------------------------------------------
 # Emit enhanced diagnostics
-#------------------------------------------------------------
+#-----------------------------------------------------------------------
+# _emit_explain()
+# Entry criteria:
+#   - Receives Test::More failure diagnostics.
+# Exit status:
+#   - Emits structured diagnostics via diag().
+# Side effects:
+#   - Produces TAP output.
+# Notes:
+#   - Chooses scalar or deep diff mode.
+#-----------------------------------------------------------------------
 sub _emit_explain {
 	my @msg = @_;
 
@@ -271,10 +348,19 @@ sub _emit_explain {
 	}
 }
 
-
 #------------------------------------------------------------
 # Extract got/expected values from Test::More diagnostics
-#------------------------------------------------------------
+#-----------------------------------------------------------------------
+# _extract_got_expected()
+# Entry criteria:
+#   - Receives Test::More diagnostic lines.
+# Exit status:
+#   - Returns ($got, $exp) strings.
+# Side effects:
+#   - None.
+# Notes:
+#   - Extracts raw values from Test::More output.
+#-----------------------------------------------------------------------
 sub _extract_got_expected {
 	my @msg = @_;
 
@@ -298,7 +384,17 @@ $exp = '' unless defined $exp;
 
 #------------------------------------------------------------
 # Detect deep structures
-#------------------------------------------------------------
+#-----------------------------------------------------------------------
+# _is_deep()
+# Entry criteria:
+#   - Receives a string representation of a value.
+# Exit status:
+#   - Returns boolean.
+# Side effects:
+#   - None.
+# Notes:
+#   - Detects array, hash, or blessed reference dumps.
+#-----------------------------------------------------------------------
 sub _is_deep {
 	my ($v) = @_;
 	return 0 unless defined $v;
@@ -318,7 +414,17 @@ sub _is_deep {
 
 #------------------------------------------------------------
 # Scalar diff with hints
-#------------------------------------------------------------
+#-----------------------------------------------------------------------
+# _explain_scalar()
+# Entry criteria:
+#   - Receives two scalar strings.
+# Exit status:
+#   - Emits diagnostics via diag().
+# Side effects:
+#   - Produces TAP output.
+# Notes:
+#   - Includes context and hints.
+#-----------------------------------------------------------------------
 sub _explain_scalar {
 	my ($got, $exp) = @_;
 
@@ -338,6 +444,17 @@ sub _explain_scalar {
 	}
 }
 
+#-----------------------------------------------------------------------
+# _first_diff_pos()
+# Entry criteria:
+#   - Receives two scalar strings.
+# Exit status:
+#   - Returns index of first differing character, or -1.
+# Side effects:
+#   - None.
+# Notes:
+#   - Used for scalar diffing.
+#-----------------------------------------------------------------------
 sub _first_diff_pos {
 	my ($a, $b) = @_;
 		$a = '' unless defined $a;
@@ -352,6 +469,17 @@ sub _first_diff_pos {
 	return -1;
 }
 
+#-----------------------------------------------------------------------
+# _emit_scalar_context()
+# Entry criteria:
+#   - Receives two strings and a mismatch index.
+# Exit status:
+#   - Emits diagnostics.
+# Side effects:
+#   - Produces TAP output.
+# Notes:
+#   - Shows context around mismatch.
+#-----------------------------------------------------------------------
 sub _emit_scalar_context {
 	my ($got, $exp, $i) = @_;
 
@@ -367,6 +495,17 @@ sub _emit_scalar_context {
 	$TB->diag("	Expected: ...$e");
 }
 
+#-----------------------------------------------------------------------
+# _emit_scalar_hints()
+# Entry criteria:
+#   - Receives two strings.
+# Exit status:
+#   - Emits diagnostics.
+# Side effects:
+#   - Produces TAP output.
+# Notes:
+#   - Provides heuristic hints.
+#-----------------------------------------------------------------------
 sub _emit_scalar_hints {
 	my ($got, $exp) = @_;
 
@@ -391,7 +530,17 @@ sub _emit_scalar_hints {
 
 #------------------------------------------------------------
 # Deep diff with hints
-#------------------------------------------------------------
+#-----------------------------------------------------------------------
+# _explain_deep()
+# Entry criteria:
+#   - Receives two deep structure dumps.
+# Exit status:
+#   - Emits diagnostics.
+# Side effects:
+#   - Produces TAP output.
+# Notes:
+#   - Delegates to _emit_deep_hints().
+#-----------------------------------------------------------------------
 sub _explain_deep {
 	my ($got, $exp) = @_;
 
@@ -402,6 +551,17 @@ sub _explain_deep {
 	_emit_deep_hints($got, $exp);
 }
 
+#-----------------------------------------------------------------------
+# _emit_deep_hints()
+# Entry criteria:
+#   - Receives two deep structure dumps.
+# Exit status:
+#   - Emits diagnostics.
+# Side effects:
+#   - Produces TAP output.
+# Notes:
+#   - Detects array length differences, missing keys, and blessedness.
+#-----------------------------------------------------------------------
 sub _emit_deep_hints {
 	my ($got, $exp) = @_;
 
@@ -436,6 +596,17 @@ sub _emit_deep_hints {
 	}
 }
 
+#-----------------------------------------------------------------------
+# _extract_keys()
+# Entry criteria:
+#   - Receives a hash dump string.
+# Exit status:
+#   - Returns a hash of keys.
+# Side effects:
+#   - None.
+# Notes:
+#   - Used for deep hash diffing.
+#-----------------------------------------------------------------------
 sub _extract_keys {
 	my ($dump) = @_;
 	my %keys;

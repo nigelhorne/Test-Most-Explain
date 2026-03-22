@@ -92,3 +92,46 @@ structures differ, the default output often shows only memory addresses.
 Test::Most::Explain aims to provide clearer diffs, contextual hints, and
 more helpful deep-structure reporting without adding heavy dependencies
 or requiring changes to existing test code.
+
+# METHODS
+
+## explain
+
+Purpose:
+  Produce a human-readable explanation of differences between two
+  values. Handles scalars, arrays, hashes, blessed references, and
+  mixed structures.
+
+Arguments:
+  ($got, $exp) - any two Perl values (scalars or references).
+
+Returns:
+  A string describing the difference. Never dies.
+
+Side effects:
+  None. This routine does not emit diagnostics; it only returns a
+  string.
+
+Notes:
+  - Undef is normalized to an empty string for scalar comparison.
+  - Deep structures are dumped using Data::Dumper.
+
+Example:
+
+    my $msg = explain("foo", "fob");
+    diag $msg;
+
+### API Specification
+
+#### Input (Params::Validate::Strict compatible)
+
+    {
+        got => { type => SCALAR | ARRAYREF | HASHREF | OBJECT, optional => 1 },
+        exp => { type => SCALAR | ARRAYREF | HASHREF | OBJECT, optional => 1 },
+    }
+
+#### Output (Return::Set compatible)
+
+    {
+        result => STRING,   # explanation text
+    }
