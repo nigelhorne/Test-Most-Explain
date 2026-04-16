@@ -279,7 +279,7 @@ sub explain {
 #   - Used internally for deep structure formatting.
 #-----------------------------------------------------------------------
 sub _dump {
-	my ($v) = @_;
+	my $v = $_[0];
 	local $Data::Dumper::Terse  = 1;
 	local $Data::Dumper::Indent = 0;
 	return Data::Dumper::Dumper($v);
@@ -392,7 +392,7 @@ $exp = '' unless defined $exp;
 #   - Detects array, hash, or blessed reference dumps.
 #-----------------------------------------------------------------------
 sub _is_deep {
-	my ($v) = @_;
+	my $v = $_[0];
 	return 0 unless defined $v;
 
 	# hash dump
@@ -453,7 +453,8 @@ sub _explain_scalar {
 #-----------------------------------------------------------------------
 sub _first_diff_pos {
 	my ($a, $b) = @_;
-		$a = '' unless defined $a;
+
+	$a = '' unless defined $a;
 	$b = '' unless defined $b;
 	my $len = length($a) < length($b) ? length($a) : length($b);
 
@@ -479,7 +480,7 @@ sub _first_diff_pos {
 sub _emit_scalar_context {
 	my ($got, $exp, $i) = @_;
 
-	  $got = '' unless defined $got;
+	$got = '' unless defined $got;
 	$exp = '' unless defined $exp;
 
 	my $ctx = 20;
@@ -505,7 +506,7 @@ sub _emit_scalar_context {
 sub _emit_scalar_hints {
 	my ($got, $exp) = @_;
 
-	$TB->diag("  Possible causes:");
+	$TB->diag('  Possible causes:');
 
 	if (length($got) != length($exp)) {
 		$TB->diag("	• Length differs (" . length($got) . " vs " . length($exp) . ")");
